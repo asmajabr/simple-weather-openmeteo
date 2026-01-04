@@ -1,0 +1,5 @@
+
+[tool.ruff]
+line-length = 100
+select = ["E","F","I","B","UP","PL"]
+ignore = ["E501"]
