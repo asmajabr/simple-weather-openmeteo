@@ -8,6 +8,20 @@ from .helpers import code_to_text
 app = FastAPI(title="Simple Weather API", version="1.1.0")
 OPEN_METEO = "https://api.open-meteo.com/v1/forecast"
 
+
+@app.get("/")
+def home():
+    return {
+        "name": "Simple Weather API",
+        "docs": "/docs",
+        "health": "/health",
+        "examples": [
+            "/weather/current?lat=36.6&lon=-4.5&tz=Europe/Madrid",
+            "/weather/forecast?lat=36.6&lon=-4.5&days=2&tz=Europe/Madrid",
+            "/weather/hourly?lat=36.6&lon=-4.5&vars=temperature_2m,windspeed_10m&tz=Europe/Madrid"
+        ]
+    }
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
