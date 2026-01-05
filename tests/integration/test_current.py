@@ -17,10 +17,9 @@ client = TestClient(app)
 EXPECTED_TEMP = 18.2
 
 def test_current_weather_returns_expected_values():
-    r = client.get("/weather/current?lat=51.5072&lon=-0.1276")  # example coords
+    r = client.get("/weather/current?lat=51.5072&lon=-0.1276")
     assert r.status_code == HTTPStatus.OK
     body = r.json()
     assert body["source"] == "open-meteo"
-    # use approx to avoid brittle float equality
     assert body["current"]["temperature"] == pytest.approx(EXPECTED_TEMP)
     assert body["current"]["weather_text"] == "Mainly clear"
