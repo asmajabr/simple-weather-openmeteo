@@ -1,6 +1,6 @@
 
 # src/helpers.py
-from typing import dict
+
 
 # Simplified Open-Meteo weathercode mapping
 WEATHER_CODE_MAP: dict[int, str] = {
