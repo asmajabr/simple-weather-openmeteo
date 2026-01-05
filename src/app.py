@@ -2,7 +2,7 @@
 # src/app.py
 from fastapi import FastAPI, HTTPException
 from fastapi import Query
-from http import HTTPStatu
+from http import HTTPStatus
 import httpx
 from .helpers import code_to_text
 
