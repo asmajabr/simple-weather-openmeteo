@@ -12,26 +12,27 @@ app = FastAPI(title="Simple Weather API", version="1.1.0")
 
 # ---- Configuration ---------------------------------------------------------
 
-# Base Open-Meteo endpoint for convenience; you can split by path if you prefer
 OPEN_METEO = "https://api.open-meteo.com/v1/forecast"
-
-# Default timezone if not provided
 DEFAULT_TZ = "UTC"
 
 
-# ---- Helpers ---------------------------------------------------------------
+# ---- Internal helper -------------------------------------------------------
 
 async def _get_json(params: dict) -> dict:
-    """Call Open-Meteo with given params and return response JSON or raise HTTP 502."""
+    """
+    Call Open-Meteo with given params and return response JSON or raise HTTP 502.
+
+    - Uses httpx.AsyncClient with a 10s timeout.
+    - Returns 502 (Bad Gateway) when upstream request fails or is not OK.
+    """
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             r = await client.get(OPEN_METEO, params=params)
-        # Either check explicitly...
         if r.status_code != HTTPStatus.OK:
             raise HTTPException(status_code=502, detail="Upstream error")
-        # ...or use: r.raise_for_status()
         return r.json()
     except httpx.HTTPError as exc:
+        # Make the failure explicit to clients while hiding internal details
         raise HTTPException(status_code=502, detail=f"Upstream error: {exc}") from exc
 
 
@@ -56,7 +57,6 @@ async def current_weather(
     data = await _get_json(params)
     current = data.get("current_weather", {}) or {}
 
-    # Open-Meteo current payload typically includes temperature (°C) and weathercode
     temperature = current.get("temperature")
     weather_code = current.get("weathercode")
     weather_text = code_to_text(int(weather_code)) if weather_code is not None else "Unknown"
@@ -81,3 +81,68 @@ async def daily_forecast(
     days: int = Query(2, ge=1, le=7, description="Number of days to forecast (1–7)"),
     tz: str = Query(DEFAULT_TZ),
 ):
+    """
+    Get daily forecast (max/min temp, precipitation summary, weather code) for N days.
+    """
+    daily_vars = ["temperature_2m_max", "temperature_2m_min", "precipitation_sum", "weathercode"]
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "daily": ",".join(daily_vars),
+        "forecast_days": days,
+        "timezone": tz or DEFAULT_TZ,
+    }
+
+    data = await _get_json(params)
+    daily = data.get("daily", {}) or {}
+    codes: List[Optional[int]] = daily.get("weathercode", []) or []
+
+    daily_text = [code_to_text(int(c)) if c is not None else "Unknown" for c in codes]
+
+    return {
+        "source": "open-meteo",
+        "coordinates": {"lat": lat, "lon": lon},
+        "days": days,
+        "daily": {
+            "temperature_2m_max": daily.get("temperature_2m_max", []),
+            "temperature_2m_min": daily.get("temperature_2m_min", []),
+            "precipitation_sum": daily.get("precipitation_sum", []),
+            "weathercode": codes,
+            "weather_text": daily_text,
+            "time": daily.get("time", []),
+        },
+    }
+
+
+@app.get("/weather/hourly")
+async def hourly_variables(
+    lat: float = Query(..., ge=-90, le=90),
+    lon: float = Query(..., ge=-180, le=180),
+    vars: str = Query(
+        "temperature_2m,windspeed_10m",
+        description="Comma-separated hourly variables, e.g. temperature_2m,windspeed_10m",
+    ),
+    tz: str = Query(DEFAULT_TZ),
+):
+    """
+    Get selected hourly variables for the given coordinates.
+    """
+    selected = [v.strip() for v in vars.split(",") if v.strip()]
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "hourly": ",".join(selected),
+        "timezone": tz or DEFAULT_TZ,
+    }
+
+    data = await _get_json(params)
+    hourly = data.get("hourly", {}) or {}
+
+    filtered = {k: hourly.get(k, []) for k in selected}
+
+    return {
+        "source": "open-meteo",
+        "coordinates": {"lat": lat, "lon": lon},
+        "selected": selected,
+        "hourly": filtered,
+    }
