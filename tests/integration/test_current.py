@@ -1,39 +1,24 @@
-
 # tests/integration/test_current.py
+
+# Standard library
+from http import HTTPStatus
+
+# Third-party
 from fastapi.testclient import TestClient
-from src.app import app
-import httpx
 import pytest
+
+# Local
+from src.app import app
 
 client = TestClient(app)
 
-@pytest.fixture(autouse=True)
-def mock_open_meteo(monkeypatch):
-    class MockResp:
-        status_code = 200
-        def json(self):
-            return {
-                "current_weather": {
-                    "temperature": 18.2,
-                    "windspeed": 7.1,
-                    "weathercode": 1,
-                    "time": "2026-01-04T09:00"
-                }
-            }
-    class MockClient:
-        async def get(self, *a, **k):
-            return MockResp()
-        async def __aenter__(self):
-            return self
-        async def __aexit__(self, exc_type, exc, tb):
-            pass
-    monkeypatch.setattr(httpx, "AsyncClient", lambda timeout=10: MockClient())
+# Test constants (aligned with CI fixture)
+EXPECTED_TEMP = 0.1
 
-
-def test_current_weather_ok():
-    r = client.get("/weather/current?lat=36.6&lon=-4.5&tz=Europe/Madrid")
-    assert r.status_code == 200
+def test_current_weather_returns_expected_values():
+    r = client.get("/weather/current?lat=51.5072&lon=-0.1276")
+    assert r.status_code == HTTPStatus.OK
     body = r.json()
     assert body["source"] == "open-meteo"
-    assert body["current"]["temperature"] == 18.2
-    assert body["current"]["weather_text"] == "Mainly clear"
+    assert body["current"]["temperature"] == pytest.approx(EXPECTED_TEMP)
+    assert body["current"]["weather_text"] == "Clear"

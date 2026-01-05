@@ -1,9 +1,9 @@
 
 # src/helpers.py
-from typing import Dict
+
 
 # Simplified Open-Meteo weathercode mapping
-WEATHER_CODE_MAP: Dict[int, str] = {
+WEATHER_CODE_MAP: dict[int, str] = {
     0: "Clear",
     1: "Mainly clear",
     2: "Partly cloudy",
