@@ -2,6 +2,7 @@
 # src/app.py
 from fastapi import FastAPI, HTTPException
 from fastapi import Query
+from http import HTTPStatu
 import httpx
 from .helpers import code_to_text
 
@@ -73,7 +74,7 @@ async def hourly(lat: float = Query(..., ge=-90, le=90),
     }
     async with httpx.AsyncClient(timeout=10) as client:
         r = await client.get(OPEN_METEO, params=params)
-    if r.status_code != 200:
+    if r.status_code != HTTPStatus.OK:
         raise HTTPException(status_code=502, detail="Upstream error")
     hourly = r.json().get("hourly", {})
     return {"source": "open-meteo", "hourly": hourly, "selected": vars.split(',')}
