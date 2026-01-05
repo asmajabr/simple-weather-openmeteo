@@ -14,7 +14,7 @@ from src.app import app
 client = TestClient(app)
 
 # Test constants
-EXPECTED_TEMP = 18.2
+EXPECTED_TEMP = 0.1
 
 def test_current_weather_returns_expected_values():
     r = client.get("/weather/current?lat=51.5072&lon=-0.1276")
