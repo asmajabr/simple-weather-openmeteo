@@ -3,6 +3,7 @@
 from fastapi.testclient import TestClient
 from src.app import app
 import httpx
+from http import HTTPStatus
 import pytest
 
 client = TestClient(app)
@@ -10,7 +11,7 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def mock_open_meteo(monkeypatch):
     class MockResp:
-        status_code = 200
+        status_code = HTTPStatus.OK
         def json(self):
             return {
                 "daily": {
@@ -32,7 +33,7 @@ def mock_open_meteo(monkeypatch):
 
 def test_forecast_ok():
     r = client.get("/weather/forecast?lat=36.6&lon=-4.5&days=2&tz=Europe/Madrid")
-    assert r.status_code == 200
+    assert r.status_code == HTTPStatus.OK
     body = r.json()
     daily = body["daily"]
     assert daily["temperature_2m_max"][0] == 20.0
