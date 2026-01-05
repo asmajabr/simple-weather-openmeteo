@@ -1,7 +1,5 @@
-
 # src/app.py
 from http import HTTPStatus
-from typing import Optional
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
@@ -94,9 +92,11 @@ async def daily_forecast(
     }
 
     data = await _get_json(params)
-    codes: list[int | None] = daily.get("weathercode", []) or []
-    daily_text = [code_to_text(int(c)) if c is not None else "Unknown" for c in codes]
+    # extract daily dict from the API response (was missing previously)
+    daily = data.get("daily", {}) or {}
 
+    # use native typing form (ruff-friendly)
+    codes: list[int | None] = daily.get("weathercode", []) or []
     daily_text = [code_to_text(int(c)) if c is not None else "Unknown" for c in codes]
 
     return {
