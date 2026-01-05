@@ -5,7 +5,6 @@ from http import HTTPStatus
 
 # Third-party
 from fastapi.testclient import TestClient
-import httpx
 import pytest
 
 # Local
@@ -13,7 +12,7 @@ from src.app import app
 
 client = TestClient(app)
 
-# Test constants
+# Test constants (aligned with CI fixture)
 EXPECTED_MAX_0 = 20.0
 EXPECTED_PRECIP_1 = 1.2
 

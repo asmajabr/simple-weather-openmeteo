@@ -5,7 +5,6 @@ from http import HTTPStatus
 
 # Third-party
 from fastapi.testclient import TestClient
-import httpx
 import pytest
 
 # Local
@@ -13,7 +12,7 @@ from src.app import app
 
 client = TestClient(app)
 
-# Test constants
+# Test constants (aligned with CI fixture)
 EXPECTED_HOURLY_TEMP_0 = 17.3
 
 def test_hourly_selected_vars():
