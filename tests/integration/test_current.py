@@ -33,7 +33,7 @@ def mock_open_meteo(monkeypatch):
 
 def test_current_weather_ok():
     r = client.get("/weather/current?lat=36.6&lon=-4.5&tz=Europe/Madrid")
-    assert r.status_code == 200
+    assert r.status_code == HTTPStatus.OK
     body = r.json()
     assert body["source"] == "open-meteo"
     assert body["current"]["temperature"] == 18.2
