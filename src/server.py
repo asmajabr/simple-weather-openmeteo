@@ -1,11 +1,16 @@
-# 1) Standard library
+# src/server.py
+
+# Standard library
 import os
 
-# 2) Third-party
+# Third-party
 import uvicorn
 
-# 3) Local/application
+# Local/application
 from src.app import app
+
+# (rest of your server.py content follows unchanged)
+
 
 
 
