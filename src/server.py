@@ -1,5 +1,3 @@
-# src/server.py
-
 # 1) Standard library
 import os
 
@@ -8,6 +6,7 @@ import uvicorn
 
 # 3) Local/application
 from src.app import app
+
 
 
 if __name__ == "__main__":
