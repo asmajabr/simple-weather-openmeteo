@@ -20,5 +20,5 @@ def test_hourly_selected_vars():
     r = client.get("/weather/hourly?lat=51.5072&lon=-0.1276&vars=temperature_2m,windspeed_10m")
     assert r.status_code == HTTPStatus.OK
     body = r.json()
-    assert set(body["selected"]) == {"temperature_2m","windspeed_10m"}
+    assert set(body["selected"]) == {"temperature_2m", "windspeed_10m"}
     assert body["hourly"]["temperature_2m"][0] == pytest.approx(EXPECTED_HOURLY_TEMP_0)
