@@ -3,6 +3,7 @@
 from fastapi.testclient import TestClient
 from src.app import app
 import httpx
+from http import HTTPStatus
 import pytest
 
 client = TestClient(app)
@@ -10,7 +11,7 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def mock_open_meteo(monkeypatch):
     class MockResp:
-        status_code = 200
+        status_code = HTTPStatus.OK
         def json(self):
             return {
                 "current_weather": {
