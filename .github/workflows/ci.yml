@@ -30,6 +30,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Pytest + coverage
+        env:
+          PYTHONPATH: ${{ github.workspace }}  # <-- to fix test ci failed test
         run: pytest --maxfail=1 --disable-warnings --quiet
       - name: Upload coverage.xml
         uses: actions/upload-artifact@v4
