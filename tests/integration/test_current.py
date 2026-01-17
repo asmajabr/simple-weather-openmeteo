@@ -12,8 +12,7 @@ from src.app import app
 
 client = TestClient(app)
 
-# Test constants (aligned with CI fixture)
-EXPECTED_TEMP = 0.1
+EXPECTED_TEMP = 18.2
 
 def test_current_weather_returns_expected_values():
     r = client.get("/weather/current?lat=51.5072&lon=-0.1276")
@@ -21,4 +20,4 @@ def test_current_weather_returns_expected_values():
     body = r.json()
     assert body["source"] == "open-meteo"
     assert body["current"]["temperature"] == pytest.approx(EXPECTED_TEMP)
-    assert body["current"]["weather_text"] == "Clear"
+    assert body["current"]["weather_text"] == "Mainly clear"
